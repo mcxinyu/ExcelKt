@@ -90,24 +90,24 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            val releaseUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            val snapshotUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
-
-            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotUrl else releaseUrl)
-
-            credentials {
-                val ossrhUsername: String by project
-                val ossrhPassword: String by project
-
-                username = ossrhUsername
-                password = ossrhPassword
-            }
-        }
-    }
+    // repositories {
+    //     maven {
+    //         val releaseUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+    //         val snapshotUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
+    //
+    //         url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotUrl else releaseUrl)
+    //
+    //         credentials {
+    //             val ossrhUsername: String by project
+    //             val ossrhPassword: String by project
+    //
+    //             username = ossrhUsername
+    //             password = ossrhPassword
+    //         }
+    //     }
+    // }
 }
 
-signing {
-    sign(publishing.publications["ossrh"])
-}
+// signing {
+//     sign(publishing.publications["ossrh"])
+// }
