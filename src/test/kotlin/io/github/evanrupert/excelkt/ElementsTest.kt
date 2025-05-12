@@ -80,8 +80,16 @@ class ElementsTest {
     fun `the cell method can create multiple cells with proper indices and proper content`() {
         wb.apply {
             sheet {
+                val drawing = xssfSheet.createDrawingPatriarch()
+                val creationHelper = xssfWorkbook.getCreationHelper()
                 row {
-                    cell("Hello, First Cell!")
+                    cell("Hello, First Cell!") {
+                        val anchor = creationHelper.createClientAnchor()
+                        val comment = drawing.createCellComment(anchor).also {
+                            it.string = XSSFRichTextString("this is a comment")
+                        }
+                        cellComment = comment
+                    }
                     cell("Hello, Second Cell!")
                     cell(100.0)
                     cell(LocalDate.of(2021, 4, 28))

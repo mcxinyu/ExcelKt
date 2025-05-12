@@ -2,6 +2,7 @@ package io.github.evanrupert.excelkt
 
 import org.apache.poi.xssf.usermodel.*
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -24,7 +25,8 @@ abstract class ExcelElement {
      * @param init block function where style attributes can be specified
      * @return newly created XSSFCellStyle
      */
-    fun createCellStyle(init: XSSFCellStyle.() -> Unit = { }): XSSFCellStyle = xssfWorkbook.createCellStyle().apply(init)
+    fun createCellStyle(init: XSSFCellStyle.() -> Unit = { }): XSSFCellStyle =
+        xssfWorkbook.createCellStyle().apply(init)
 
     /**
      * Creates a new XSSFFont from the options specified in the init block
@@ -64,11 +66,9 @@ class Workbook(
      *
      * @param filename path to which the Excel file will be written
      */
-    fun write(filename: String) {
-        FileOutputStream(filename).use { out ->
-            xssfWorkbook.write(out)
-        }
-    }
+    fun write(filename: String) = write(FileOutputStream(filename))
+
+    fun write(out: OutputStream) = out.use { xssfWorkbook.write(it) }
 }
 
 /**
@@ -151,13 +151,14 @@ class Row(
      * @param content the content to be displayed in the cell
      * @param style optional cell style to be applied to this cell
      */
-    fun cell(content: Any, style: XSSFCellStyle? = null) {
+    fun cell(content: Any, style: XSSFCellStyle? = null, action: (XSSFCell.() -> Unit)? = null) {
         Cell(
             xssfWorkbook = xssfWorkbook,
             style = style ?: this.style,
             content = content,
             xssfRow = xssfRow,
-            index = currentCellIndex++
+            index = currentCellIndex++,
+            action = action,
         )
     }
 }
@@ -175,7 +176,8 @@ class Cell(
     private val style: XSSFCellStyle?,
     content: Any,
     xssfRow: XSSFRow,
-    index: Int
+    index: Int,
+    private val action: (XSSFCell.() -> Unit)? = null,
 ) : ExcelElement() {
     init {
         xssfRow.createCell(index).run {
@@ -191,9 +193,9 @@ class Cell(
                 else -> setCellValue(content.toString())
             }
 
-            this@Cell.style?.let {
-                cellStyle = it
-            }
+            style?.let { cellStyle = it }
+
+            action?.invoke(this)
         }
     }
 }
